@@ -46,30 +46,28 @@ module StateModule
         unmix(old_state)
     end
         
-    def __state_prologue(new_state)
+    def __state_prologue(new_state, state_args)
     
         # ensure that the constant is a module
         raise NameError if(!(Module === new_state))
         
         mixin(new_state)
         begin
-            state_entry()
+            state_entry(*state_args)
         rescue NoMethodError
             # do nothing
         end
     end
         
-    def state(*state_name)
-    
-        raise ArgumentError, "wrong number of arguments; expected 1 or 0." if(state_name.size > 1)
-                    
+    def state(*state_args)
+                                
         # behave as getter
-        if(state_name.empty?) then
+        if(state_args.empty?) then
             return @__SM_cur_state ? @__SM_cur_state : :Default
         end
         
         # behave as setter; only care about first argument
-        state_name = state_name.first
+        state_name = state_args.shift
         
         # prevent unnecessary state transitions
         return if(@__SM_cur_state == state_name || (state_name == :Default && !@__SM_cur_state))
@@ -88,7 +86,7 @@ module StateModule
         
         # state prologue        
         s = self.class.const_get(state_name)              
-        __state_prologue(s)        
+        __state_prologue(s, state_args)        
         @__SM_cur_state = state_name
         
         rescue NameError

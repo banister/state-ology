@@ -12,7 +12,7 @@ class Fren
     include StateModule
     
     state(:John) {
-        def state_entry; puts "entering John state"; end
+        def state_entry(arg1); puts "entering John state"; puts "argument: #{arg1}"; end
         
         def hello
             puts "John hello"
@@ -48,8 +48,8 @@ puts "ancestors: "
 puts f.meta.ancestors
 
 puts "John state:\n"
-f.state :John
-f.state :John
+f.state :John, 5
+f.state :John, 5
 f.hello
 puts "ancestors: "
 puts f.meta.ancestors
@@ -60,7 +60,7 @@ f.hello
 puts "ancestors: "
 puts f.meta.ancestors
 
-f.state :John
+f.state :John, 5
 
 
 puts "state is Default? #{f.state?(:Default)}"
