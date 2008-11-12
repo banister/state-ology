@@ -49,6 +49,7 @@ puts f.meta.ancestors
 
 puts "John state:\n"
 f.state :John
+f.state :John
 f.hello
 puts "ancestors: "
 puts f.meta.ancestors
@@ -60,6 +61,7 @@ puts "ancestors: "
 puts f.meta.ancestors
 
 f.state :John
+
 
 puts "state is Default? #{f.state?(:Default)}"
 
