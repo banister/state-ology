@@ -79,8 +79,7 @@ module StateModule
         # only need to call epilogue if in a state other than Default
         if(@__SM_cur_state) then        
             s = self.class.const_get(@__SM_cur_state)                                   
-            __state_epilogue(s)
-            
+            __state_epilogue(s)           
         end
         
         # Default state is already mixed in
@@ -108,6 +107,7 @@ module StateModule
 end
 
 
+# just a sample of how to use it
 class Fren
     include StateModule
     
