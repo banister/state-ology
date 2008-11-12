@@ -6,11 +6,6 @@ end
 
 require 'mixology'
 
-class Object
-    def meta
-        class << self; self; end
-    end
-end
 
 module StateModule
 
@@ -82,7 +77,7 @@ module StateModule
             __state_epilogue(s)           
         end
         
-        # Default state is already mixed in
+        # Default state is the same as no mixins
         if(state_name == :Default) then 
             @__SM_cur_state = nil           
             return
@@ -103,67 +98,6 @@ module StateModule
     end
            
     private :__state_prologue, :__state_epilogue
-    
 end
-
-
-# just a sample of how to use it
-class Fren
-    include StateModule
-    
-    state(:John) {
-        def state_entry; puts "entering John state"; end
-        
-        def hello
-            puts "John hello"
-        end
-        
-        def state_exit; puts "exiting John state"; end
-    }
-    
-    state(:Carl) {
-        def state_entry; puts "entering Carl state"; end
-        
-        def hello
-            puts "Carl hello"
-        end
-        
-        def state_exit; puts "exiting Carl state"; end
-    }
-        
-    # default state methods go here
-    def hello
-        puts "Default hello"
-    end
-        
-end
-
-
-f = Fren.new
-
-puts "Carl state:\n"
-f.state :Carl
-f.hello
-puts "ancestors: "
-puts f.meta.ancestors
-
-puts "John state:\n"
-f.state :John
-f.hello
-puts "ancestors: "
-puts f.meta.ancestors
-
-puts "Default state:\n"
-f.state :Default
-f.hello
-puts "ancestors: "
-puts f.meta.ancestors
-
-#f.state :Yo
-
-puts "state is #{f.state?(:Default)}"
-
-puts f.state
-
 
 
