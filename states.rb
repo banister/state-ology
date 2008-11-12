@@ -39,7 +39,7 @@ module StateModule
         raise NameError if(!(Module === old_state))
         
         begin    
-            state_exit
+            state_exit()
         rescue NoMethodError
             # do nothing
         end
@@ -53,7 +53,7 @@ module StateModule
         
         mixin(new_state)
         begin
-            state_entry
+            state_entry()
         rescue NoMethodError
             # do nothing
         end
@@ -62,9 +62,7 @@ module StateModule
     def state(*state_name)
     
         raise ArgumentError, "wrong number of arguments; expected 1 or 0." if(state_name.size > 1)
-        
-        
-    
+                    
         # behave as getter
         if(state_name.empty?) then
             return @__SM_cur_state ? @__SM_cur_state : :Default
@@ -73,6 +71,7 @@ module StateModule
         # behave as setter; only care about first argument
         state_name = state_name.first
         
+        # prevent unnecessary state transitions
         return if(@__SM_cur_state == state_name || (state_name == :Default && !@__SM_cur_state))
           
         # only need to call epilogue if in a state other than Default
