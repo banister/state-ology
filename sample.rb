@@ -1,70 +1,72 @@
-require 'states'
+require 'lib/stateology'
 
-class Object
-    def meta
-        class << self; self; end
-    end
-end
-
-
-# just a sample of how to use it
-class Fren
-    include StateModule
+class Sample
+    include Stateology
     
-    state(:John) {
-        def state_entry(arg1); puts "entering John state"; puts "argument: #{arg1}"; end
-        
-        def hello
-            puts "John hello"
+    state(:Happy) {
+        def state_entry
+            puts "entering Happy state"
         end
         
-        def state_exit; puts "exiting John state"; end
-    }
-    
-    state(:Carl) {
-        def state_entry; puts "entering Carl state"; end
-        
-        def hello
-            puts "Carl hello"
+        def do_something
+            puts "Pets a puppy"
         end
         
-        def state_exit; puts "exiting Carl state"; end
+        def state_exit
+            puts "exiting Happy state"
+        end
     }
+    
+    state(:Angry) {
+        def state_entry
+            puts "entering Angry state"
+        end
         
-    # default state methods go here
-    def hello
-        puts "Default hello"
+        def do_something
+            puts "Kicks a puppy"
+        end
+        
+        def state_exit
+            puts "exiting Angry state"
+        end
+    }
+    
+    # methods declared outside a 'state' are part of the Default state
+    
+    def state_entry
+        puts "entering Default state"
     end
-        
+    
+    def do_something
+        puts "stares at the ceiling"
+    end
+    
+    def state_exit
+        puts "exiting Default state"
+    end
+    
+    # if we want the Default state_entry to run on instantiation
+    # we must call it from the initialize method
+    def initialize
+        state_entry
+    end
+    
 end
 
+s = Sample.new
 
-f = Fren.new
+# in Default state
+s.do_something  #=> "stares at the ceiling"
 
-puts "Carl state:\n"
-f.state :Carl
-f.hello
-puts "ancestors: "
-puts f.meta.ancestors
+# now switch to Happy state
+s.state :Happy
+s.do_something  #=> "Pets a puppy"
 
-puts "John state:\n"
-f.state :John, 5
-f.state :John, 5
-f.hello
-puts "ancestors: "
-puts f.meta.ancestors
+# now switch to Angry state
+s.state :Angry
+s.do_something  #=> "Kicks a puppy"
 
-puts "Default state:\n"
-f.state :Default
-f.hello
-puts "ancestors: "
-puts f.meta.ancestors
-
-f.state :John, 5
-
-
-puts "state is Default? #{f.state?(:Default)}"
-
-puts "the current state is #{f.state}"
-
+# now switch back to Default state
+s.state :Default
+s.do_something  #=> "stares at the ceiling"
 
