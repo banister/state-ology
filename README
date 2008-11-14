@@ -1,1 +1,91 @@
-Clean and fast Object state transitions in Ruby using the Mixology C extension
+Clean and fast Object state transitions in Ruby using the Mixology C extension.
+
+Supports:
+* Dynamic switching between states (mixing and unmixing modules)
+* Clean DSL-style syntax 
+* Optional state_entry() and state_exit() methods for each state (automatically called upon state entry and exit)
+
+Use as in the following:
+
+class Sample
+    include Stateology
+    
+    state(:Happy) {
+        def state_entry
+            puts "entering Happy state"
+        end
+        
+        def do_something
+            puts "Pets a puppy"
+        end
+        
+        def state_exit
+            puts "exiting Happy state"
+        end
+    }
+    
+    state(:Angry) {
+        def state_entry
+            puts "entering Angry state"
+        end
+        
+        def do_something
+            puts "Kicks a puppy"
+        end
+        
+        def state_exit
+            puts "exiting Angry state"
+        end
+    }
+    
+    # methods declared outside a 'state' are part of the Default state
+    
+    def state_entry
+        puts "entering Default state"
+    end
+    
+    def do_something
+        puts "stares at the ceiling"
+    end
+    
+    def state_exit
+        puts "exiting Default state"
+    end
+    
+    # if we want the Default state_entry to run on instantiation
+    # we must call it from the initialize method
+    def initialize
+        state_entry
+    end
+    
+end
+
+s = Sample.new
+
+# in Default state
+s.do_something  #=> "stares at the ceiling"
+
+# now switch to Happy state
+s.state :Happy
+s.do_something  #=> "Pets a puppy"
+
+# now switch to Angry state
+s.state :Angry
+s.do_something  #=> "Kicks a puppy"
+
+# now switch back to Default state
+s.state :Default
+s.do_something  #=> "stares at the ceiling"
+
+
+
+---=A FEW THINGS TO NOTE=---
+* When an object is instantiated it begins life in the Default state
+* Default state methods are those defined outside of any state() {} block
+* The Default state is different to normal states in that its methods are available to any state (so long as they are not 
+overridden by the state.)
+* The state_entry method for Default is not automatically called on object instantiation. If you wish state_entry to run
+when the object is instantiated invoke it in the initialize() method.
+
+ 
+
