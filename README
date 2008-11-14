@@ -104,7 +104,7 @@ alternatively; if the #state method is invoked internally by another instance me
 state Happy #=> Fully qualified module name not required when #state invoked in an instance method
 
 * The #state method can also act as a 'getter' method when invoked with no parameters. It will return the current state name in Symbol form (e.g :Happy)
-* The #state_mod method works similarly to the #state 'getter' except it returns the Module representating the current state (e.g Sample::Happy)
+* The #state_mod method works similarly to the #state 'getter' except it returns the Module representing the current state (e.g Sample::Happy)
 * The #state?(state_name) returns boolean true if the current state is equal to state_name, and false if not. state_name can be either a Module or a Symbol
 
 
