@@ -20,15 +20,8 @@ module Stateology
     # class methods
     module SM_Class_Methods
         def state(name, &block)      
-        
-            if(name == :Default) then
-                class_eval &block
-                return
-            end
-                  
-            const_set(name, Module.new(&block))
-            
-                        
+         
+            const_set(name, Module.new(&block))                                    
         end
     end
     
@@ -65,28 +58,29 @@ module Stateology
     end
         
     def state(*state_args)
-    
-        @__SM_cur_state ||= :Default
-                                
+                                            
         # behave as getter
-        if(state_args.empty?) then
-            return @__SM_cur_state 
+        if(state_args.empty?) then            
+            return @__SM_cur_state ? "#{@__SM_cur_state}".split(/::/).last.intern : nil
         end
         
         # behave as setter (only care about first argument)
         state_name = state_args.shift
         
+        # if we receive a Symbol convert it to a constant
+        if(Symbol === state_name) then
+            state_name = self.class.const_get(state_name)
+        end
+                
         # prevent unnecessary state transitions
         return if(@__SM_cur_state == state_name)
           
-        # exit old state   
-        s = @__SM_cur_state != :Default ? self.class.const_get(@__SM_cur_state) : nil                                  
-        __state_epilogue(s)                   
+        # exit old state                                   
+        __state_epilogue(@__SM_cur_state)                   
         
                     
-        # enter new state       
-        s = state_name != :Default ? self.class.const_get(state_name) : nil       
-        __state_prologue(s, state_args)   
+        # enter new state               
+        __state_prologue(state_name, state_args)   
         
         # update the current state variable    
         @__SM_cur_state = state_name
@@ -96,10 +90,28 @@ module Stateology
                                         
     end
     
+    # is the current state equal to state_name?
     def state?(state_name)
-        @__SM_cur_state ? state_name == @__SM_cur_state : state_name == :Default
+    
+        # if we receive a Symbol convert it to a constant
+        if(Symbol === state_name) then
+            state_name = self.class.const_get(state_name)
+        end
+        
+        raise NameError, "#{state_name} not a valid state" if(!(Module === state_name) && state_name != nil)
+        
+        state_name == @__SM_cur_state
+        
+        rescue NameError
+            raise StateNameError, "#{state_name} not a valid state" 
+                                                            
     end
-           
+    
+    # return the current state as a module
+    def state_mod
+        @__SM_cur_state
+    end
+                   
     private :__state_prologue, :__state_epilogue
 end
 

@@ -38,7 +38,7 @@ class Sample
         end
     }
     
-    # methods declared outside a 'state' are part of the Default state
+    # methods declared outside a 'state' are not part of any state
     
     def state_entry
         puts "entering Default state"
@@ -52,7 +52,7 @@ class Sample
         puts "exiting Default state"
     end
     
-    # if we want the Default state_entry to run on instantiation
+    # if we want the state_entry to run on instantiation
     # we must call it from the initialize method
     def initialize
         state_entry
@@ -80,14 +80,32 @@ s.do_something  #=> "stares at the ceiling"
 
 
 ---=A FEW THINGS TO NOTE=---
-* When an object is instantiated it begins life in the Default state
-* Default state methods are those defined outside of any state() {} block
-* The Default state is different to normal states in that its methods are available to any state (so long as they are not overridden by the state.)
-* The state_entry method for Default is not automatically called on object instantiation. If you wish state_entry to run when the object is instantiated invoke it in the initialize() method.
-* The state_entry method can accept parameters: 
+* When an object is instantiated it begins life in no state and only ordinary instance methods are accessible (The ordinary instance methods are those defined outside of any state() {} block) 
+* The ordinary instance methods are available to any state (so long as they are not overridden by the state.)
+* To change from any given state to 'no state' pass nil as a parameter to the state method
+
+e.g s.state nil
+
+* 'no state', while not a state, may nonetheless have state_entry() and state_exit() methods; and these methods will be invoked on 'entry' and exit from 'no state'
+* The state_entry method for 'no state' is not automatically called on object instantiation. If you wish state_entry to run when the object is instantiated invoke it in the initialize() method.
+* The state_entry method can also accept parameters: 
 
 e.g s.state :Happy, "hello"
 
-In the above the string "hello" is passed as a parameter to the state_entry() method of the :Happy state.
+In the above the string "hello" is passed as a parameter to the state_entry() method of the Happy state.
+
+* The #state method can accept either a Symbol (e.g :Happy) or a Module (e.g Happy or Sample::Happy). The following are equivalent:
+
+s.state :Happy  #=> change state to Happy
+s.state Sample::Happy #=> equivalent to above (note the fully qualified name; as Happy is a module defined under the Sample class)
+
+alternatively; if the #state method is invoked internally by another instance method of the Sample class then a fully qualified module name is not required:
+
+state Happy #=> Fully qualified module name not required when #state invoked in an instance method
+
+* The #state method can also act as a 'getter' method when invoked with no parameters. It will return the current state name in Symbol form (e.g :Happy)
+* The #state_mod method works similarly to the #state 'getter' except it returns the Module representating the current state (e.g Sample::Happy)
+* The #state?(state_name) returns boolean true if the current state is equal to state_name, and false if not. state_name can be either a Module or a Symbol
+
 
 

@@ -63,10 +63,18 @@ s.state :Happy
 s.do_something  #=> "Pets a puppy"
 
 # now switch to Angry state
-s.state :Angry
+s.state Sample::Angry
 s.do_something  #=> "Kicks a puppy"
 
 # now switch back to Default state
-s.state :Default
+s.state nil
 s.do_something  #=> "stares at the ceiling"
+
+s.state :Angry
+
+# what state are we in?
+puts s.state
+
+
+
 
