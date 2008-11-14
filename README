@@ -86,7 +86,7 @@ s.do_something  #=> "stares at the ceiling"
 * The state_entry method for Default is not automatically called on object instantiation. If you wish state_entry to run when the object is instantiated invoke it in the initialize() method.
 * The state_entry method can accept parameters: 
 
-e.g state :Happy, "hello"
+e.g s.state :Happy, "hello"
 
 In the above the string "hello" is passed as a parameter to the state_entry() method of the :Happy state.
 
