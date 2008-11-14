@@ -107,5 +107,6 @@ state Happy #=> Fully qualified module name not required when #state invoked in 
 * The #state_mod method works similarly to the #state 'getter' except it returns the Module representing the current state (e.g Sample::Happy)
 * The #state?(state_name) returns boolean true if the current state is equal to state_name, and false if not. state_name can be either a Module or a Symbol
 
+* One last note: state(:Name) {} is just DSL-style syntactic sugar for module Name...end
 
 
