@@ -82,10 +82,11 @@ s.do_something  #=> "stares at the ceiling"
 ---=A FEW THINGS TO NOTE=---
 * When an object is instantiated it begins life in the Default state
 * Default state methods are those defined outside of any state() {} block
-* The Default state is different to normal states in that its methods are available to any state (so long as they are not 
-overridden by the state.)
-* The state_entry method for Default is not automatically called on object instantiation. If you wish state_entry to run
-when the object is instantiated invoke it in the initialize() method.
+* The Default state is different to normal states in that its methods are available to any state (so long as they are not overridden by the state.)
+* The state_entry method for Default is not automatically called on object instantiation. If you wish state_entry to run when the object is instantiated invoke it in the initialize() method.
+* The state_entry method can accept parameters: 
+e.g state :Happy, "hello"
 
- 
+In the above the string "hello" is passed as a parameter to the state_entry() method of the :Happy state.
+
 
