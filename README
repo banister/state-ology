@@ -73,8 +73,8 @@ s.do_something  #=> "Pets a puppy"
 s.state :Angry
 s.do_something  #=> "Kicks a puppy"
 
-# now switch back to Default state
-s.state :Default
+# now switch back to no state
+s.state nil
 s.do_something  #=> "stares at the ceiling"
 
 
