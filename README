@@ -3,7 +3,7 @@ Clean and fast Object state transitions in Ruby using the Mixology C extension.
 Supports:
 * Dynamic switching between states (mixing and unmixing modules)
 * Clean DSL-style syntax 
-* Optional state_entry() and state_exit() methods for each state (automatically called upon state entry and exit)
+* Optional state_entry() and state_exit() hooks for each state (automatically called upon state entry and exit)
 
 Use as in the following:
 
