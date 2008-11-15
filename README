@@ -62,7 +62,7 @@ end
 
 s = Sample.new
 
-# in Default state
+# in no state
 s.do_something  #=> "stares at the ceiling"
 
 # now switch to Happy state
