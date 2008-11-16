@@ -9,9 +9,6 @@ require 'mixology'
 
 module Stateology
 
-    # custom Exception
-    class StateNameError < NameError; end
-
     # bring in class methods on include
     def self.included(c)
         c.extend(SM_Class_Methods)
@@ -86,7 +83,7 @@ module Stateology
         @__SM_cur_state = state_name
         
         rescue NameError
-            raise StateNameError, "#{state_name} not a valid state" 
+            raise NameError, "#{state_name} not a valid state" 
                                         
     end
     
@@ -98,12 +95,12 @@ module Stateology
             state_name = self.class.const_get(state_name)
         end
         
-        raise NameError, "#{state_name} not a valid state" if(!(Module === state_name) && state_name != nil)
+        raise NameError if(!(Module === state_name) && state_name != nil)
         
         state_name == @__SM_cur_state
         
         rescue NameError
-            raise StateNameError, "#{state_name} not a valid state" 
+            raise NameError, "#{state_name} not a valid state" 
                                                             
     end
     
