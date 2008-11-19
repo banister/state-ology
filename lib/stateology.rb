@@ -8,6 +8,9 @@ require 'mixology'
 
 
 module Stateology
+    
+    # alternative to 'nil'
+    Default = nil
 
     # bring in class methods on include
     def self.included(c)
