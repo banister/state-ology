@@ -6,7 +6,6 @@ end
 
 require 'mixology'
 
-
 module Stateology
     
     # alternative to 'nil'
@@ -20,8 +19,17 @@ module Stateology
     # class methods
     module SM_Class_Methods
         def state(name, &block)      
-         
-            const_set(name, Module.new(&block))                                    
+            m = Module.new(&block)   
+                  
+            if constants.include?(name.to_s) then
+                inherited_state = const_get(name)
+                
+                # ignore if the constant is not a module                                
+                m.send(:include, inherited_state) if Module === inherited_state
+            end
+            
+            const_set(name, m)     
+            
         end
     end
     
@@ -113,6 +121,7 @@ module Stateology
     end
                    
     private :__state_prologue, :__state_epilogue
+        
 end
 
 
