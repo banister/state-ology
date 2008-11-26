@@ -65,7 +65,7 @@ module Stateology
         
     end
         
-    def state(*state_args)
+    def state(*state_args, &block)
                                             
         # behave as getter
         if(state_args.empty?) then            
@@ -89,9 +89,12 @@ module Stateology
                     
         # enter new state               
         __state_prologue(state_name, state_args)   
-        
+                        
         # update the current state variable    
         @__SM_cur_state = state_name
+        
+        # if we were given a block, run it now
+        if(block) then yield end
         
         rescue NameError
             raise NameError, "#{state_name} not a valid state" 

@@ -4,6 +4,7 @@ Supports:
 * Dynamic switching between states (mixing and unmixing modules)
 * Clean DSL-style syntax 
 * Optional state_entry() and state_exit() hooks for each state (automatically called upon state entry and exit)
+* support for subclassing of classes that include Stateology (see below)
 
 Use as in the following:
 
@@ -77,6 +78,42 @@ s.do_something  #=> "Kicks a puppy"
 s.state nil
 s.do_something  #=> "stares at the ceiling"
 
+UPDATE:
+* made it so subclasses can inherit states from their superclasses e.g
+class A
+    include Stateology
+    
+    state(:Happy) {
+        def state_entry
+            puts "entering Happy state"
+        end
+        
+        def hello
+            puts "hello from A"
+        end
+    }
+end
+
+class B < A
+    state(:Happy) {
+        def hello
+            puts "hello from B"
+        end
+    }
+end
+
+b = B.new
+
+b.state :Happy
+#=> "entering Happy state"
+
+b.hello
+#=> "hello from B"
+
+* prior behaviour was for state_entry not to exist in class B as Happy module from class A was overwritten by the new Happy module in B
+* how does this fix work? the Happy module in B just includes any extant Happy module accessible in B
+
+
 
 
 ---=A FEW THINGS TO NOTE=---
@@ -98,6 +135,9 @@ In the above the string "hello" is passed as a parameter to the state_entry() me
 
 * The #state method can accept either a Symbol (e.g :Happy) or a Module (e.g Happy or Sample::Happy). The following are equivalent:
 s.state :Happy #=> change state to Happy
+
+* The #state method can take a block; the block will be executed after the successful change of state:
+e.g s.state(:Happy) { s.hello }    #=> hello method invoked immediately after change of state as it's in the block
 
 s.state Sample::Happy #=> equivalent to above (note the fully qualified name; as Happy is a module defined under the Sample class)
 

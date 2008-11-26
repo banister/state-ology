@@ -53,7 +53,18 @@ class Sample
     
 end
 
+class SampleChild < Sample
+    state(:Happy) {
+        def do_something
+            puts "pets a Kitten"
+        end
+    }
+end
+
 s = Sample.new
+sc = SampleChild.new
+
+puts "Testing Sample"
 
 # in Default state
 s.do_something  #=> "stares at the ceiling"
@@ -75,6 +86,40 @@ s.state :Angry
 # what state are we in?
 puts s.state
 
+# pass a block to state transition
+puts "passing a block"
+s.state :Happy do 
+    s.do_something; s.do_something; s.do_something 
+end
+
+
+puts "**********************"
+puts "Now Testing SampleChild"
+# in Default state
+sc.do_something  #=> "stares at the ceiling"
+
+# now switch to Happy state
+sc.state :Happy
+sc.do_something  #=> "Pets a puppy"
+
+# now switch to Angry state
+sc.state Sample::Angry
+sc.do_something  #=> "Kicks a puppy"
+
+# now switch back to Default state
+sc.state nil
+sc.do_something  #=> "stares at the ceiling"
+
+sc.state :Angry
+
+# what state are we in?
+puts sc.state
+
+# pass a block to state transition
+puts "passing a block"
+sc.state :Happy do
+    sc.do_something; sc.do_something; sc.do_something
+end
 
 
 
