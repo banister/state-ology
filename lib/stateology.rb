@@ -26,6 +26,9 @@ module Stateology
                 
                 # ignore if the constant is not a module                                
                 m.send(:include, inherited_state) if Module === inherited_state
+                
+                # bring Stateology into the module so can create nested states
+                m.send(:include, Stateology)
             end
             
             const_set(name, m)     
