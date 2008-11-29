@@ -18,6 +18,11 @@ class ParentState
         def state1_act
             1
         end
+    state(:State1_nested) {
+            def act
+                1.5
+            end
+        }
     }
     
     state(:State2) {
@@ -55,6 +60,7 @@ class ChildState < ParentState
 end
 
 class StateologyTest < Test::Unit::TestCase
+    puts "testing Stateology #{Stateology::VERSION}"
 
     def test_nil_state
         s = ParentState.new
@@ -100,6 +106,18 @@ class StateologyTest < Test::Unit::TestCase
         assert_equal(1, s.act_child)
     end
     
+    def test_nested_state
+        s = ParentState.new
+        s.state :State1
+        s.state :State1_nested
+        assert_equal(1.5, s.act)
+        assert_equal(1, s.state1_act)
+        puts "changing to nil state"
+        s.state nil
+        assert_raises(NoMethodError) { s.state1_act }
+        assert_equal(0, s.act)
+    end
+        
 end 
         
         
