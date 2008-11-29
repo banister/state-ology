@@ -11,6 +11,7 @@ class ParentState
     include Stateology
     
     state(:State1) {
+        
         def act
             1
         end
@@ -19,6 +20,10 @@ class ParentState
             1
         end
     state(:State1_nested) {
+            def state_entry(&block) 
+                puts "balls-deep in State1_nested!"
+                if block then yield end
+            end
             def act
                 1.5
             end
@@ -109,10 +114,9 @@ class StateologyTest < Test::Unit::TestCase
     def test_nested_state
         s = ParentState.new
         s.state :State1
-        s.state :State1_nested
+        s.state :State1_nested do puts "BLOCK PASSED TO STATE1_NESTED" end
         assert_equal(1.5, s.act)
         assert_equal(1, s.state1_act)
-        puts "changing to nil state"
         s.state nil
         assert_raises(NoMethodError) { s.state1_act }
         assert_equal(0, s.act)

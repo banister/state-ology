@@ -57,12 +57,22 @@ module Stateology
         mod.name.to_sym
     end
     
+    # is state_name a nested state?
+    def __nested_state?(new_state)
+    
+        # test is: 
+        # (1) are we in a state? (non nil)
+        # (2) is the new state a state? (non nil)
+        # (3) is the new state defined under the current state? (i.e it's nested)
+        @__SM_nesting.first && 
+        new_state && 
+        @__SM_nesting.first.const_defined?(__elided_class_path(__mod_to_sym(new_state)))
+    end
+        
+    
     # instance methods   
     def __state_epilogue
-    
-        # ensure that the constant is a module
-        
-             
+                        
         @__SM_nesting.each do |old_state|    
             raise NameError if !(Module === old_state) && old_state != nil
               
@@ -71,22 +81,23 @@ module Stateology
             rescue NoMethodError
                 # do nothing
             end
-            puts "exitting state nesting is #{old_state}"
+            puts "exiting #{old_state}"
             if old_state then unmix(old_state) end
         end
     end
         
-    def __state_prologue(new_state, state_args)
+    def __state_prologue(new_state, state_args, &block)
     
         # ensure that the constant is a module
         raise NameError if !(Module === new_state) && new_state != nil
         
-        puts "entering state"
-        # only mixin if 
-        if new_state then mixin(new_state) end
+        puts "entering state #{new_state}"
+        
+        # only mixin if non-nil (duh)
+        if new_state then extend(new_state) end
         
         begin  
-            state_entry(*state_args)                
+            state_entry(*state_args, &block)                
         rescue NoMethodError
             # do nothing
         end
@@ -94,10 +105,11 @@ module Stateology
     end
         
     def state(*state_args, &block)
-        @__SM_nesting ||= [nil]                                   
+        @__SM_nesting ||= []    
+                                       
         # behave as getter
         if state_args.empty? then            
-            return @__SM_cur_state ? __elided_class_path(@__SM_cur_state) : nil
+            return @__SM_nesting.first ? __elided_class_path(__mod_to_sym(@__SM_nesting.first)) : nil
         end
         
         # behave as setter (only care about first argument)
@@ -109,34 +121,25 @@ module Stateology
         end
                 
         # prevent unnecessary state transitions
-        return if @__SM_cur_state == state_name
+        return if @__SM_nesting.first== state_name
           
-        # exit old state                
-        if @__SM_cur_state && state_name && @__SM_cur_state.const_defined?(__elided_class_path(__mod_to_sym(state_name))) then 
-            
-            #@__SM_nesting.unshift(state_name)
-            puts "nesting is #{@__SM_nesting}"          
-        else                           
+        # exit old state only if the new state is not nested within it              
+        if not __nested_state?(state_name) then 
             __state_epilogue                
-            @__SM_nesting = [nil] 
+            @__SM_nesting = []                                            
         end
-        
-                    
+                            
         # enter new state                       
-        __state_prologue(state_name, state_args)   
+        __state_prologue(state_name, state_args, &block)   
                         
-        # update the current state variable    
-        @__SM_cur_state = state_name
-        @__SM_nesting.unshift(state_name)
-        
-        # if we were given a block, run it now
-        if block then yield end
-        
+        # update the stack of current states 
+         @__SM_nesting.unshift(state_name)
+                
         # return value is the current state
-        @__SM_cur_state
+        @__SM_nesting.first
         
-       # rescue NameError
-       #     raise NameError, "#{state_name} not a valid state" 
+        rescue NameError
+            raise NameError, "#{state_name} not a valid state" 
                                         
     end
     
@@ -150,7 +153,7 @@ module Stateology
         
         raise NameError if !(Module === state_name) && state_name != nil
         
-        state_name == @__SM_cur_state
+        state_name == @__SM_nesting.first
         
         rescue NameError
             raise NameError, "#{state_name} not a valid state" 
@@ -159,7 +162,7 @@ module Stateology
     
     # return the current state as a module
     def state_mod
-        @__SM_cur_state
+        @__SM_nesting.first
     end
                    
     private :__state_prologue, :__state_epilogue
