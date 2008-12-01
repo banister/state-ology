@@ -9,8 +9,22 @@ end
 
 class ParentState
     include Stateology
+    attr_reader :state_val
+    attr_reader :xstate_val
+    
+    def state_entry
+        @state_val = "entry_nil"
+    end
+    
+    def state_exit
+        @xstate_val = "exit_nil"
+    end
     
     state(:State1) {
+    
+        def state_entry
+            @state_val = "entry_state1"
+        end
         
         def act
             1
@@ -19,7 +33,12 @@ class ParentState
         def state1_act
             1
         end
-    state(:State1_nested) {
+        
+        def state_exit  
+            @xstate_val = "exit_state1"
+        end
+        
+        state(:State1_nested) {
             def state_entry(&block) 
                 puts "balls-deep in State1_nested!"
                 if block then yield end
@@ -70,21 +89,29 @@ class StateologyTest < Test::Unit::TestCase
     def test_nil_state
         s = ParentState.new
         assert_equal(0, s.act)
+        assert_equal(nil, s.xstate_val)
+        assert_equal(nil, s.state_val)
         assert_raises(NoMethodError) { s.state1_act }
     end
     
     def test_transition_from_nil_state
         s = ParentState.new
         assert_equal(0, s.act)
+        assert_equal(nil, s.state_val)
+        assert_equal(nil, s.xstate_val)
         s.state :State1 
+        assert_equal("exit_nil", s.xstate_val)
+        assert_equal("entry_state1", s.state_val)        
         assert_equal(1, s.act)
     end
     
     def test_transition_to_nil_state
         s = ParentState.new
         s.state :State1
-        assert_equal(1, s.act)
+        assert_equal(1, s.act)                  
         s.state nil
+        assert_equal("exit_state1", s.xstate_val)
+        assert_equal("entry_nil", s.state_val)
         assert_equal(0, s.act)
         assert_raises(NoMethodError) { s.state1_act }
     end
@@ -121,7 +148,8 @@ class StateologyTest < Test::Unit::TestCase
         assert_raises(NoMethodError) { s.state1_act }
         assert_equal(0, s.act)
     end
-        
+    
+       
 end 
         
         

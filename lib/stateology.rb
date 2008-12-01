@@ -7,7 +7,7 @@ end
 require 'mixology'
 
 module Stateology
-    VERSION = "0.1.5"
+    VERSION = "0.1.6"
     # alternative to 'nil'
     Default = nil
 
@@ -19,28 +19,28 @@ module Stateology
     # class methods
     module SM_Class_Methods
         def state(name, &block)      
-            m = Module.new
+            
 
-            # if the state is defined further up the chain then "inherit it"
-            if constants.include?(name.to_s) && !const_defined?(name) then
+            # if const is defined here then module_eval
+            if constants.include?(name.to_s) && const_defined?(name) then
+                self.module_eval(&block)
+            else
+                
+                m = Module.new    
+                # if the state is defined further up the chain then "inherit it"        
+                if constants.include?(name.to_s) && !const_defined?(name) then
+                    # if constant not defined here then must be inherited
+                    inherited_state = const_get(name)
             
-                # if constant not defined here then must be inherited
-                inherited_state = const_get(name)
-            
-                # ignore if the constant is not a module                                
-                m.send(:include, inherited_state) if Module === inherited_state                                                
-            
-            end
-                        
-            # bring Stateology into the module so we can create nested states
-            m.send(:include, Stateology)   
-            
-            # now we've included Stateology we can eval the block
-            m.module_eval(&block)
-                  
-
-            const_set(name, m)     
-            
+                    # ignore if the constant is not a module                                
+                    m.send(:include, inherited_state) if Module === inherited_state  
+                end
+                
+                m.send(:include, Stateology)    
+                m.module_eval(&block)           
+                
+                const_set(name, m)                                                                                        
+            end            
         end
     end
     
@@ -54,6 +54,14 @@ module Stateology
     end
     
     def __mod_to_sym(mod)
+        # weird case where module does not have name (i.e when a state created on the eigenclass)
+        if mod.name == "" then
+            class << self; self; end.constants.each do |v|                 
+                return v.to_sym if __sym_to_mod(v.to_sym) == mod                
+            end
+            return :ConstantNotDefined
+        end 
+                
         mod.name.to_sym
     end
     
@@ -61,7 +69,7 @@ module Stateology
     def __nested_state?(new_state)
     
         # test is: 
-        # (1) are we in a state? (non nil)
+        # (1) are we currently in a state? (non nil)
         # (2) is the new state a state? (non nil)
         # (3) is the new state defined under the current state? (i.e it's nested)
         @__SM_nesting.first && 
@@ -84,6 +92,7 @@ module Stateology
             puts "exiting #{old_state}"
             if old_state then unmix(old_state) end
         end
+        @__SM_nesting = []
     end
         
     def __state_prologue(new_state, state_args, &block)
@@ -91,10 +100,9 @@ module Stateology
         # ensure that the constant is a module
         raise NameError if !(Module === new_state) && new_state != nil
         
-        puts "entering state #{new_state}"
-        
         # only mixin if non-nil (duh)
         if new_state then extend(new_state) end
+        puts "entering #{new_state}"
         
         begin  
             state_entry(*state_args, &block)                
@@ -103,56 +111,64 @@ module Stateology
         end
         
     end
-        
-    def state(*state_args, &block)
-        @__SM_nesting ||= []    
-                                       
-        # behave as getter
-        if state_args.empty? then            
-            return @__SM_nesting.first ? __elided_class_path(__mod_to_sym(@__SM_nesting.first)) : nil
-        end
-        
-        # behave as setter (only care about first argument)
-        state_name = state_args.shift
-        
+    
+    def __validate_state_name(state_name)   
         # if we receive a Symbol convert it to a constant
         if Symbol === state_name then
             state_name = __sym_to_mod(state_name)
         end
-                
-        # prevent unnecessary state transitions
-        return if @__SM_nesting.first== state_name
-          
-        # exit old state only if the new state is not nested within it              
-        if not __nested_state?(state_name) then 
-            __state_epilogue                
-            @__SM_nesting = []                                            
+        
+        raise NameError if state_name && !state_name.instance_of?(Module)
+        
+        state_name
+    end
+        
+        
+    
+    def __state_transition(new_state, state_args, &block)
+        # preven unnecessary state transition
+        return if @__SM_nesting.first == new_state
+        
+        # get rid of state_name from arg list
+        state_args.shift
+        # exit old state only if the new state is not nested within it                     
+        __state_epilogue unless __nested_state?(new_state)                                                                                                             
+        __state_prologue(new_state, state_args, &block)   
+        
+        @__SM_nesting.unshift(new_state)
+    end 
+    
+    def __state_getter
+        @__SM_nesting.first ? __elided_class_path(__mod_to_sym(@__SM_nesting.first)) : nil
+    end                            
+        
+        
+    def state(*state_args, &block)
+        @__SM_nesting ||= [nil]    
+                                       
+        # behave as getter
+        if state_args.empty? then            
+            return __state_getter
         end
-                            
-        # enter new state                       
-        __state_prologue(state_name, state_args, &block)   
-                        
-        # update the stack of current states 
-         @__SM_nesting.unshift(state_name)
-                
+        
+        new_state = __validate_state_name(state_args.first)
+                                     
+        __state_transition(new_state, state_args, &block)
+                                    
         # return value is the current state
         @__SM_nesting.first
         
         rescue NameError
-            raise NameError, "#{state_name} not a valid state" 
+            raise NameError, "#{new_state} not a valid state" 
                                         
     end
     
     # is the current state equal to state_name?
     def state?(state_name)
-    
-        # if we receive a Symbol convert it to a constant
-        if Symbol === state_name then
-            state_name = class << self; self; end.const_get(state_name)
-        end
-        
-        raise NameError if !(Module === state_name) && state_name != nil
-        
+            
+        state_name = __validate_state_name(state_name)
+          
+        # compare
         state_name == @__SM_nesting.first
         
         rescue NameError
@@ -165,7 +181,7 @@ module Stateology
         @__SM_nesting.first
     end
                    
-    private :__state_prologue, :__state_epilogue
+    private :__state_prologue, :__state_epilogue, :__elided_class_path, :__mod_to_sym, :__sym_to_mod, :__nested_state?
         
 end
 
