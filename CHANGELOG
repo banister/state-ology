@@ -1,3 +1,7 @@
+
+
+3-12-08
+* nested states now supported
 26-11-08
 * can now provide state() (instance method) a block; the block will be invoked after the successful change of state
 

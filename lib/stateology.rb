@@ -20,7 +20,6 @@ module Stateology
     module SM_Class_Methods
         def state(name, &block)      
             
-
             # if const is defined here then module_eval
             if constants.include?(name.to_s) && const_defined?(name) then
                 self.module_eval(&block)
