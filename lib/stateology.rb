@@ -32,7 +32,7 @@ module Stateology
                     inherited_state = const_get(name)
             
                     # ignore if the constant is not a module                                
-                    m.send(:include, inherited_state) if Module === inherited_state  
+                    m.send(:include, inherited_state) if inherited_state.instance_of?(Module)  
                 end
                 
                 m.send(:include, Stateology)    
@@ -81,14 +81,14 @@ module Stateology
     def __state_epilogue
                         
         @__SM_nesting.each do |old_state|    
-            raise NameError if !(Module === old_state) && old_state != nil
+            raise NameError if !old_state.instance_of?(Module) && old_state != nil
               
             begin
                 state_exit()
             rescue NoMethodError
                 # do nothing
             end
-            puts "exiting #{old_state}"
+           
             if old_state then unmix(old_state) end
         end
         @__SM_nesting = []
@@ -97,11 +97,10 @@ module Stateology
     def __state_prologue(new_state, state_args, &block)
     
         # ensure that the constant is a module
-        raise NameError if !(Module === new_state) && new_state != nil
+        raise NameError if !new_state.instance_of?(Module) && new_state != nil
         
         # only mixin if non-nil (duh)
-        if new_state then extend(new_state) end
-        puts "entering #{new_state}"
+        if new_state then extend(new_state) end        
         
         begin  
             state_entry(*state_args, &block)                
@@ -139,12 +138,20 @@ module Stateology
     
     def __state_getter
         @__SM_nesting.first ? __elided_class_path(__mod_to_sym(@__SM_nesting.first)) : nil
-    end                            
+    end   
+    
+    def __current_state
+        @__SM_nesting.first
+    end       
+    
+    def __init_state
+        @__SM_nesting ||= [nil] 
+    end                   
         
         
     def state(*state_args, &block)
-        @__SM_nesting ||= [nil]    
-                                       
+        __init_state
+           
         # behave as getter
         if state_args.empty? then            
             return __state_getter
@@ -155,7 +162,7 @@ module Stateology
         __state_transition(new_state, state_args, &block)
                                     
         # return value is the current state
-        @__SM_nesting.first
+        __current_state
         
         rescue NameError
             raise NameError, "#{new_state} not a valid state" 
@@ -168,7 +175,7 @@ module Stateology
         state_name = __validate_state_name(state_name)
           
         # compare
-        state_name == @__SM_nesting.first
+        state_name == __current_state
         
         rescue NameError
             raise NameError, "#{state_name} not a valid state" 
@@ -180,7 +187,8 @@ module Stateology
         @__SM_nesting.first
     end
                    
-    private :__state_prologue, :__state_epilogue, :__elided_class_path, :__mod_to_sym, :__sym_to_mod, :__nested_state?
+    private :__state_prologue, :__state_epilogue, :__elided_class_path, :__mod_to_sym, :__sym_to_mod, 
+        :__nested_state?, :__current_state
         
 end
 
