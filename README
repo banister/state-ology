@@ -5,7 +5,7 @@ Supports:
 * Clean DSL-style syntax 
 * Optional state_entry() and state_exit() hooks for each state (automatically called upon state entry and exit)
 * support for subclassing of classes that include Stateology (see below)
-* support for nested states, i.e states defined with other states
+* support for nested states, i.e states defined within other states
 
 Use as in the following:
 
