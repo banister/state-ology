@@ -5,6 +5,7 @@ Supports:
 * Clean DSL-style syntax 
 * Optional state_entry() and state_exit() hooks for each state (automatically called upon state entry and exit)
 * support for subclassing of classes that include Stateology (see below)
+* support for nested states, i.e states defined with other states
 
 Use as in the following:
 
@@ -150,4 +151,4 @@ state Happy #=> Fully qualified module name not required when #state invoked in 
 
 * The #state?(state_name) returns boolean true if the current state is equal to state_name, and false if not. state_name can be either a Module or a Symbol
 
-* One last note: state(:Name) {} is just DSL-style syntactic sugar for module Name...end
+
