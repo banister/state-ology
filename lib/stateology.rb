@@ -164,13 +164,14 @@ module Stateology
         # return value is the current state
         __current_state
         
-        rescue NameError
-            raise NameError, "#{new_state} not a valid state" 
+      #  rescue NameError
+      #      raise NameError, "#{new_state} not a valid state" 
                                         
     end
     
     # is the current state equal to state_name?
     def state?(state_name)
+        __init_state
             
         state_name = __validate_state_name(state_name)
           
@@ -178,12 +179,13 @@ module Stateology
         state_name == __current_state
         
         rescue NameError
-            raise NameError, "#{state_name} not a valid state" 
+          raise NameError, "#{state_name} not a valid state" 
                                                             
     end
     
     # return the current state as a module
     def state_mod
+        __init_state
         @__SM_nesting.first
     end
                    
