@@ -8,7 +8,7 @@ require 'mixology'
 
 module Stateology
     VERSION = "0.1.6"
-    
+
     # alternative to 'nil'
     Default = nil
 
@@ -77,7 +77,6 @@ module Stateology
         __current_state.const_defined?(__elided_class_path(__mod_to_sym(new_state)))
     end
 
-
     # instance methods
     def __state_epilogue
 
@@ -122,14 +121,13 @@ module Stateology
         state_name
     end
 
-
-
     def __state_transition(new_state, state_args, &block)
         # preven unnecessary state transition
         return if __current_state == new_state
 
         # get rid of state_name from arg list
         state_args.shift
+
         # exit old state only if the new state is not nested within it
         __state_epilogue unless __nested_state?(new_state)
         __state_prologue(new_state, state_args, &block)
