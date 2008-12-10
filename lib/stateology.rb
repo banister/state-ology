@@ -8,6 +8,7 @@ require 'mixology'
 
 module Stateology
     VERSION = "0.1.6"
+    
     # alternative to 'nil'
     Default = nil
 
@@ -71,9 +72,9 @@ module Stateology
         # (1) are we currently in a state? (non nil)
         # (2) is the new state a state? (non nil)
         # (3) is the new state defined under the current state? (i.e it's nested)
-        @__SM_nesting.first &&
+        __current_state &&
         new_state &&
-        @__SM_nesting.first.const_defined?(__elided_class_path(__mod_to_sym(new_state)))
+        __current_state.const_defined?(__elided_class_path(__mod_to_sym(new_state)))
     end
 
 
@@ -125,7 +126,7 @@ module Stateology
 
     def __state_transition(new_state, state_args, &block)
         # preven unnecessary state transition
-        return if @__SM_nesting.first == new_state
+        return if __current_state == new_state
 
         # get rid of state_name from arg list
         state_args.shift
@@ -137,20 +138,15 @@ module Stateology
     end
 
     def __state_getter
-        @__SM_nesting.first ? __elided_class_path(__mod_to_sym(@__SM_nesting.first)) : nil
+        __current_state ? __elided_class_path(__mod_to_sym(__current_state)) : nil
     end
 
     def __current_state
+        @__SM_nesting ||= [nil]
         @__SM_nesting.first
     end
 
-    def __init_state
-        @__SM_nesting ||= [nil]
-    end
-
-
     def state(*state_args, &block)
-        __init_state
 
         # behave as getter
         if state_args.empty? then
@@ -171,7 +167,6 @@ module Stateology
 
     # is the current state equal to state_name?
     def state?(state_name)
-        __init_state
 
         state_name = __validate_state_name(state_name)
 
@@ -185,12 +180,11 @@ module Stateology
 
     # return the current state as a module
     def state_mod
-        __init_state
-        @__SM_nesting.first
+        __current_state
     end
 
     private :__state_prologue, :__state_epilogue, :__elided_class_path, :__mod_to_sym, :__sym_to_mod,
-        :__nested_state?, :__current_state
+        :__nested_state?, :__current_state, :__validate_state_name, :__state_transition, :__state_getter
 
 end
 
