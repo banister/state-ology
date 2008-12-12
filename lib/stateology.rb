@@ -73,8 +73,8 @@ module Stateology
         # (2) is the new state a state? (non nil)
         # (3) is the new state defined under the current state? (i.e it's nested)
         __current_state &&
-        new_state &&
-        __current_state.const_defined?(__elided_class_path(__mod_to_sym(new_state)))
+            new_state &&
+            __current_state.const_defined?(__elided_class_path(__mod_to_sym(new_state)))
     end
 
     # instance methods
@@ -158,8 +158,8 @@ module Stateology
         # return value is the current state
         __current_state
 
-        rescue NameError
-            raise NameError, "#{new_state} not a valid state"
+    rescue NameError
+        raise NameError, "#{new_state} not a valid state"
 
     end
 
@@ -171,8 +171,8 @@ module Stateology
         # compare
         state_name == __current_state
 
-        rescue NameError
-          raise NameError, "#{state_name} not a valid state"
+    rescue NameError
+        raise NameError, "#{state_name} not a valid state"
 
     end
 
@@ -182,7 +182,7 @@ module Stateology
     end
 
     private :__state_prologue, :__state_epilogue, :__elided_class_path, :__mod_to_sym, :__sym_to_mod,
-        :__nested_state?, :__current_state, :__validate_state_name, :__state_transition, :__state_getter
+    :__nested_state?, :__current_state, :__validate_state_name, :__state_transition, :__state_getter
 
 end
 
