@@ -83,7 +83,9 @@ Use as in the following:
     s.do_something  #=> "stares at the ceiling"
 
 UPDATE:
+
 * made it so subclasses can inherit states from their superclasses e.g
+
     class A
         include Stateology
         
@@ -120,7 +122,8 @@ UPDATE:
 
 
 
----=A FEW THINGS TO NOTE=---
+A FEW THINGS TO NOTE
+--------------------
 
 * When an object is instantiated it begins life in no state and only ordinary instance methods are accessible (The ordinary instance methods are those defined outside of any state() {} block)
 
