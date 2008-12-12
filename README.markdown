@@ -85,36 +85,37 @@ Use as in the following:
 UPDATE:
 
 * made it so subclasses can inherit states from their superclasses e.g
+    
 
-     class A
-         include Stateology
-         
-         state(:Happy) {
-             def state_entry
-                 puts "entering Happy state"
-             end
-             
-             def hello
-                 puts "hello from A"
-             end
-         }
-     end
+        class A
+            include Stateology
+            
+            state(:Happy) {
+                def state_entry
+                    puts "entering Happy state"
+                end
+                
+                def hello
+                    puts "hello from A"
+                end
+            }
+        end
 
-     class B < A
-         state(:Happy) {
-             def hello
-                 puts "hello from B"
-             end
-         }
-     end
+        class B < A
+            state(:Happy) {
+                def hello
+                    puts "hello from B"
+                end
+            }
+        end
 
-     b = B.new
+        b = B.new
 
-     b.state :Happy
-     #=> "entering Happy state"
+        b.state :Happy
+        #=> "entering Happy state"
 
-     b.hello
-     #=> "hello from B"
+        b.hello
+        #=> "hello from B"
 
 * prior behaviour was for state\_entry not to exist in class B as Happy module from class A was overwritten by the new Happy module in B
 * how does this fix work? the Happy module in B just includes any extant Happy module accessible in B
