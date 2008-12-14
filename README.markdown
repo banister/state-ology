@@ -5,10 +5,12 @@ Stateology
 
 Supports:
 * Dynamic switching between states (mixing and unmixing modules)
-* Clean DSL-style syntax 
+
 * Optional state\_entry() and state\_exit() hooks for each state (automatically called upon state entry and exit)
 * support for subclassing of classes that include Stateology (see below)
 * support for nested states, i.e states defined within other states
+* Clean DSL-style syntax
+* *NO MAGIC!* Stateology does not use any behind-the-scenes method aliasing nor does it make use of any hooks.
 
 Use as in the following:
 
