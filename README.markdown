@@ -4,8 +4,8 @@ Stateology
 *Clean and fast Object state transitions in Ruby using the Mixology C extension.*
 
 Supports:
-* Dynamic switching between states (mixing and unmixing modules)
 
+* Dynamic switching between states (mixing and unmixing modules)
 * Optional state\_entry() and state\_exit() hooks for each state (automatically called upon state entry and exit)
 * support for subclassing of classes that include Stateology (see below)
 * support for nested states, i.e states defined within other states
@@ -45,26 +45,6 @@ Use as in the following:
             end
         }
         
-        # methods declared outside a 'state' are not part of any state
-        
-        def state_entry
-            puts "entering Default state"
-        end
-        
-        def do_something
-            puts "stares at the ceiling"
-        end
-        
-        def state_exit
-            puts "exiting Default state"
-        end
-        
-        # if we want the state_entry to run on instantiation
-        # we must call it from the initialize method
-        def initialize
-            state_entry
-        end
-    
     end
 
     s = Sample.new
@@ -79,10 +59,6 @@ Use as in the following:
     # now switch to Angry state
     s.state :Angry
     s.do_something  #=> "Kicks a puppy"
-
-    # now switch back to no state
-    s.state nil
-    s.do_something  #=> "stares at the ceiling"
 
 UPDATE:
 
