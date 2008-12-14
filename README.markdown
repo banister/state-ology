@@ -49,9 +49,6 @@ Use as in the following:
 
     s = Sample.new
 
-    # in no state
-    s.do_something  #=> "stares at the ceiling"
-
     # now switch to Happy state
     s.state :Happy
     s.do_something  #=> "Pets a puppy"
