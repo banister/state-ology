@@ -1,3 +1,7 @@
+# stateology.rb
+# (C) John Mair 2008
+# This program is distributed under the terms of the MIT License
+
 begin
     require 'rubygems'
 rescue LoadError
