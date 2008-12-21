@@ -117,11 +117,10 @@ In the above the string "hello" is passed as a parameter to the state\_entry() m
 
 * The #state method can accept either a Symbol (e.g :Happy) or a Module (e.g Happy or Sample::Happy). The following are equivalent:
 s.state :Happy #=> change state to Happy
+s.state Sample::Happy #=> equivalent to above (note the fully qualified name; as Happy is a module defined under the Sample class)
 
 * The #state method can take a block; the block will be executed after the successful change of state:
 e.g s.state(:Happy) { s.hello }    #=> hello method invoked immediately after change of state as it's in the block
-
-s.state Sample::Happy #=> equivalent to above (note the fully qualified name; as Happy is a module defined under the Sample class)
 
 * alternatively; if the #state method is invoked internally by another instance method of the Sample class then a fully qualified module name is not required:
 state Happy #=> Fully qualified module name not required when #state invoked in an instance method
