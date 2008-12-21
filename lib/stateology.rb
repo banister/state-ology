@@ -11,7 +11,7 @@ end
 require 'mixology'
 
 module Stateology
-    VERSION = "0.1.6"
+    VERSION = "0.1.8"
 
     # alternative to 'nil'
     Default = nil
