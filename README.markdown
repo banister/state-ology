@@ -44,7 +44,6 @@ Use as in the following:
                 puts "exiting Angry state"
             end
         }
-        
     end
 
     s = Sample.new
