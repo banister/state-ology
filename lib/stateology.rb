@@ -26,13 +26,13 @@ module Stateology
         def state(name, &block)
 
             # if const is defined here then module_eval
-            if constants.include?(name.to_s) && const_defined?(name) then
+            if const_defined?(name) then
                 self.module_eval(&block)
             else
 
                 m = Module.new
                 # if the state is defined further up the chain then "inherit it"
-                if constants.include?(name.to_s) && !const_defined?(name) then
+                if constants.include?(name.to_s) then
                     # if constant not defined here then must be inherited
                     inherited_state = const_get(name)
 
@@ -50,7 +50,7 @@ module Stateology
 
     # strip the class path and return just the constant name, i.e Hello::Fren -> Fren
     def __elided_class_path(sym)
-        "#{sym}".split(/::/).last.intern
+        sym.to_s.split(/::/).last.intern
     end
 
     def __sym_to_mod(sym)
