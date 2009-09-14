@@ -1,6 +1,7 @@
 # stateology.rb
 # (C) John Mair 2008
 # This program is distributed under the terms of the MIT License
+# now supports BOTH ruby 1.8.6 and ruby 1.9.1
 
 begin
     require 'rubygems'
@@ -11,7 +12,7 @@ end
 require 'mixology'
 
 module Stateology
-    VERSION = "0.1.8"
+    VERSION = "0.2.0"
 
     # alternative to 'nil'
     Default = nil
@@ -21,18 +22,26 @@ module Stateology
         c.extend(SM_Class_Methods)
     end
 
+
     # class methods
     module SM_Class_Methods
         def state(name, &block)
+            
+            if RUBY_VERSION =~ /1.9/
+                    pram = [false]
+                else
+                    pram = []
+            end
 
             # if const is defined here then module_eval
-            if const_defined?(name) then
-                self.module_eval(&block)
+            if const_defined?(name, *pram) then
+                m = self.const_get(name)
+                m.module_eval(&block)
             else
 
                 m = Module.new
                 # if the state is defined further up the chain then "inherit it"
-                if constants.include?(name.to_s) then
+                if constants.include?(name) || constants.include?(name.to_s) then
                     # if constant not defined here then must be inherited
                     inherited_state = const_get(name)
 
@@ -50,7 +59,7 @@ module Stateology
 
     # strip the class path and return just the constant name, i.e Hello::Fren -> Fren
     def __elided_class_path(sym)
-        sym.to_s.split(/::/).last.intern
+        sym.to_s.split(/::/).last.to_sym
     end
 
     def __sym_to_mod(sym)
@@ -58,8 +67,9 @@ module Stateology
     end
 
     def __mod_to_sym(mod)
+        
         # weird case where module does not have name (i.e when a state created on the eigenclass)
-        if mod.name == "" then
+        if mod.name == nil || mod.name == "" then
             class << self; self; end.constants.each do |v|
                 return v.to_sym if __sym_to_mod(v.to_sym) == mod
             end
@@ -72,13 +82,19 @@ module Stateology
     # is state_name a nested state?
     def __nested_state?(new_state)
 
+        if RUBY_VERSION =~ /1.9/
+            pram = [false]
+        else
+            pram = []
+        end
+
         # test is:
         # (1) are we currently in a state? (non nil)
         # (2) is the new state a state? (non nil)
         # (3) is the new state defined under the current state? (i.e it's nested)
         __current_state &&
             new_state &&
-            __current_state.const_defined?(__elided_class_path(__mod_to_sym(new_state)))
+            __current_state.const_defined?(__elided_class_path(__mod_to_sym(new_state)), *pram)
     end
 
     # instance methods
@@ -184,6 +200,8 @@ module Stateology
     def state_mod
         __current_state
     end
+    
+    alias_method :state=, :state
 
     private :__state_prologue, :__state_epilogue, :__elided_class_path, :__mod_to_sym, :__sym_to_mod,
     :__nested_state?, :__current_state, :__validate_state_name, :__state_transition, :__state_getter

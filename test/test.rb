@@ -40,7 +40,6 @@ class ParentState
         
         state(:State1_nested) {
             def state_entry(&block) 
-                puts "balls-deep in State1_nested!"
                 if block then yield end
             end
             def act
@@ -146,11 +145,11 @@ class StateologyTest < Test::Unit::TestCase
     
     def test_nested_state
         s = ParentState.new
-        s.state :State1
-        s.state :State1_nested
+        s.state = :State1
+        s.state = :State1_nested
         assert_equal(1.5, s.act)
         assert_equal(1, s.state1_act)
-        s.state nil
+        s.state = nil
         assert_raises(NoMethodError) { s.state1_act }
         assert_equal(0, s.act)
     end
@@ -159,10 +158,10 @@ class StateologyTest < Test::Unit::TestCase
       s = ParentState.new
       assert_equal(nil, s.state)
       
-      s.state :State1
+      s.state = :State1
       assert_equal(:State1, s.state)
       
-      s.state :State1_nested
+      s.state = :State1_nested
       assert_equal(:State1_nested, s.state)
     end
 
@@ -170,16 +169,63 @@ class StateologyTest < Test::Unit::TestCase
       s = ParentState.new
       assert_equal(true, s.state?(nil))
       
-      s.state :State1
+      s.state = :State1
       assert_equal(false, s.state?(nil))
       assert_equal(true, s.state?(:State1))
       
-      s.state :State1_nested
+      s.state = :State1_nested
       assert_equal(false, s.state?(:State1))
       assert_equal(true, s.state?(:State1_nested))
       
-      s.state nil
+      s.state = nil
       assert_equal(true, s.state?(nil))
+    end
+
+    def test_state_reopen
+        s = ParentState.new
+
+        class << s
+            state(:State1) {
+                def reopen_act
+                    :reopen_act
+                end
+            }
+            
+        end
+
+        assert_raises(NoMethodError) { s.reopen_act }
+        s.state = :State1
+        assert_equal(1, s.act)
+        assert_equal(:reopen_act, s.reopen_act)
+        s.state = nil
+        assert_raises(NoMethodError) { s.reopen_act }
+        assert_equal(0, s.act)
+    end
+
+    def test_state_nested_reopen
+       s = ParentState.new
+
+        class << s
+            state(:State1) {
+                state(:State1_nested) {
+                    def reopen_act
+                        :reopen_act
+                    end
+                }
+            }
+            
+        end
+
+        assert_raises(NoMethodError) { s.reopen_act }
+        s.state = :State1
+        assert_equal(1, s.act)
+        assert_raises(NoMethodError) { s.reopen_act }
+        s.state = :State1_nested
+        assert_equal(:reopen_act, s.reopen_act)
+        assert_equal(1.5, s.act)
+        s.state = nil
+        assert_raises(NoMethodError) { s.reopen_act }
+        assert_equal(0, s.act)
     end
 
     def test_state_defined_on_singleton
@@ -203,7 +249,7 @@ class StateologyTest < Test::Unit::TestCase
 
       assert_equal(0, s.act)
       
-      s.state :Sing_state
+      s.state = :Sing_state
       
       # test the getter
       assert_equal(:Sing_state, s.state)
@@ -217,7 +263,7 @@ class StateologyTest < Test::Unit::TestCase
       # test state compare
       assert_equal(true, s.state?(:Sing_state))
       
-      s.state nil
+      s.state = nil
 
       # test state_exit
       assert_equal("sing_exit", s.state_exit_check)

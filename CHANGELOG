@@ -1,4 +1,11 @@
+13-6-09
+* version 0.2.1
+* ugh, fixed silly (and rare) bug
+* added alias 'state=' for 'state' instance method
 
+13-6-09
+* version 0.2.0
+* now supports ruby 1.9.1 and ruby 1.8.6
 
 3-12-08
 * nested states now supported
