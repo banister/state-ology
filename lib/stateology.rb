@@ -3,6 +3,7 @@
 # This program is distributed under the terms of the MIT License
 # now supports BOTH ruby 1.8.6 and ruby 1.9.1
 
+
 begin
     require 'rubygems'
 rescue LoadError
@@ -12,7 +13,7 @@ end
 require 'mixology'
 
 module Stateology
-    VERSION = "0.2.0"
+    VERSION = "0.2.1"
 
     # alternative to 'nil'
     Default = nil
